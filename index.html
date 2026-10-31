@@ -1,0 +1,345 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kids Animation Studio</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #fff8ed;
+  color: #333;
+}
+
+header {
+  background: #7558d9;
+  color: white;
+  text-align: center;
+  padding: 22px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 28px;
+}
+
+header p {
+  margin-bottom: 0;
+}
+
+.container {
+  max-width: 750px;
+  margin: 25px auto;
+  padding: 20px;
+}
+
+.card {
+  background: white;
+  padding: 22px;
+  margin-bottom: 20px;
+  border-radius: 18px;
+  box-shadow: 0 3px 12px #ddd;
+}
+
+h2 {
+  color: #7558d9;
+}
+
+.upload-area {
+  border: 2px dashed #9a82ed;
+  border-radius: 15px;
+  padding: 30px 15px;
+  text-align: center;
+  background: #faf8ff;
+}
+
+input[type="file"] {
+  max-width: 100%;
+  margin-top: 15px;
+}
+
+#imagePreview {
+  display: none;
+  max-width: 100%;
+  max-height: 280px;
+  margin: 20px auto 0;
+  border-radius: 12px;
+  object-fit: contain;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.option {
+  background: #f1edff;
+  padding: 15px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.option input {
+  margin-right: 8px;
+}
+
+button {
+  border: none;
+  border-radius: 12px;
+  padding: 14px 22px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin: 6px;
+}
+
+#generateBtn {
+  background: #7558d9;
+  color: white;
+  width: 100%;
+}
+
+#tryAgainBtn {
+  background: #ffbd59;
+  color: #333;
+}
+
+#downloadBtn {
+  background: #ddd;
+  color: #555;
+  cursor: not-allowed;
+}
+
+#result {
+  display: none;
+  text-align: center;
+}
+
+#animatedImage {
+  max-width: 100%;
+  max-height: 280px;
+  object-fit: contain;
+}
+
+.move {
+  animation: move 2s infinite alternate ease-in-out;
+}
+
+.jump {
+  animation: jump 1s infinite ease-in-out;
+}
+
+.wave {
+  animation: wave 1s infinite alternate ease-in-out;
+}
+
+.blink {
+  animation: blink 1.5s infinite ease-in-out;
+}
+
+@keyframes move {
+  from { transform: translateX(-25px); }
+  to { transform: translateX(25px); }
+}
+
+@keyframes jump {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-35px); }
+}
+
+@keyframes wave {
+  from { transform: rotate(-8deg); }
+  to { transform: rotate(8deg); }
+}
+
+@keyframes blink {
+  0%, 45%, 55%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.88); }
+}
+
+footer {
+  text-align: center;
+  padding: 20px;
+  color: #777;
+}
+
+@media(max-width: 500px) {
+  .container {
+    padding: 12px;
+  }
+
+  .options {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>🐰 Kids Animation Studio</h1>
+  <p>Upload your drawing and bring it to life!</p>
+</header>
+
+<div class="container">
+
+  <section class="card" id="uploadSection">
+    <h2>1. Upload Your Drawing 🎨</h2>
+
+    <div class="upload-area">
+      <p>Choose your coloured picture</p>
+      <input
+        type="file"
+        id="imageInput"
+        accept="image/png,image/jpeg,image/webp"
+      >
+      <img id="imagePreview" alt="Your uploaded drawing">
+    </div>
+  </section>
+
+  <section class="card" id="optionsSection">
+    <h2>2. Choose Animation ✨</h2>
+
+    <div class="options">
+      <label class="option">
+        <input type="checkbox" value="move"> ➡️ Move
+      </label>
+
+      <label class="option">
+        <input type="checkbox" value="jump"> 🐰 Jump
+      </label>
+
+      <label class="option">
+        <input type="checkbox" value="blink"> 👀 Blink
+      </label>
+
+      <label class="option">
+        <input type="checkbox" value="wave"> 👋 Wave
+      </label>
+    </div>
+  </section>
+
+  <button id="generateBtn">✨ Generate Animation</button>
+
+  <section class="card" id="result">
+    <h2>Your Animation is Ready! 🎉</h2>
+    <img id="animatedImage" alt="Animated preview">
+
+    <p id="resultMessage">
+      This is a browser animation preview.
+    </p>
+
+    <button id="downloadBtn" disabled>
+      ⬇️ Download Video (Coming Soon)
+    </button>
+
+    <button id="tryAgainBtn">
+      🔄 Try Again
+    </button>
+  </section>
+
+</div>
+
+<footer>
+  Made for little artists ❤️
+</footer>
+
+<script>
+const imageInput = document.getElementById("imageInput");
+const imagePreview = document.getElementById("imagePreview");
+const generateBtn = document.getElementById("generateBtn");
+const result = document.getElementById("result");
+const animatedImage = document.getElementById("animatedImage");
+const tryAgainBtn = document.getElementById("tryAgainBtn");
+
+let uploadedImage = "";
+
+imageInput.addEventListener("change", function() {
+  const file = this.files[0];
+
+  if (!file) return;
+
+  if (!file.type.startsWith("image/")) {
+    alert("Please choose an image.");
+    return;
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    alert("Please upload an image smaller than 5 MB.");
+    this.value = "";
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = function(event) {
+    uploadedImage = event.target.result;
+    imagePreview.src = uploadedImage;
+    imagePreview.style.display = "block";
+    result.style.display = "none";
+  };
+
+  reader.readAsDataURL(file);
+});
+
+generateBtn.addEventListener("click", function() {
+  if (!uploadedImage) {
+    alert("Please upload your drawing first!");
+    return;
+  }
+
+  const selected = [
+    ...document.querySelectorAll(
+      '.options input:checked'
+    )
+  ].map(option => option.value);
+
+  if (selected.length === 0) {
+    alert("Please choose an animation!");
+    return;
+  }
+
+  animatedImage.src = uploadedImage;
+  animatedImage.className = "";
+
+  // First selected animation is used in this preview.
+  animatedImage.classList.add(selected[0]);
+
+  result.style.display = "block";
+  document.getElementById("resultMessage").textContent =
+    "Preview: " + selected.join(", ");
+
+  result.scrollIntoView({ behavior: "smooth" });
+});
+
+tryAgainBtn.addEventListener("click", function() {
+  imageInput.value = "";
+  imagePreview.src = "";
+  imagePreview.style.display = "none";
+
+  animatedImage.src = "";
+  animatedImage.className = "";
+
+  document.querySelectorAll(
+    '.options input'
+  ).forEach(option => option.checked = false);
+
+  uploadedImage = "";
+  result.style.display = "none";
+
+  document.getElementById("uploadSection")
+    .scrollIntoView({ behavior: "smooth" });
+});
+</script>
+
+</body>
+</html>
